@@ -3,7 +3,12 @@
 
 #pragma once
 
+#include "SafeObject.h"
+
 namespace Skugo
 {
-  void RunUnitTests();
+  class EventObject : public SafeObject
+  {
+  public:
+  };
 }

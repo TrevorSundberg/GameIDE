@@ -118,6 +118,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="Asserts.h" />
+    <ClInclude Include="Events.h" />
     <ClInclude Include="ForwardDeclarations.h" />
     <ClInclude Include="Logging.h" />
     <ClInclude Include="Precompiled.h" />
@@ -127,6 +129,8 @@
     <ClInclude Include="UnitTests.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Asserts.cpp" />
+    <ClCompile Include="Events.cpp" />
     <ClCompile Include="Logging.cpp" />
     <ClCompile Include="Precompiled.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

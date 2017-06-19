@@ -8,6 +8,8 @@
     <ClInclude Include="Precompiled.h" />
     <ClInclude Include="ForwardDeclarations.h" />
     <ClInclude Include="UnitTests.h" />
+    <ClInclude Include="Asserts.h" />
+    <ClInclude Include="Events.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Skugo.cpp" />
@@ -15,6 +17,8 @@
     <ClCompile Include="SafeObject.cpp" />
     <ClCompile Include="Precompiled.cpp" />
     <ClCompile Include="UnitTests.cpp" />
+    <ClCompile Include="Asserts.cpp" />
+    <ClCompile Include="Events.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Singleton.inl" />

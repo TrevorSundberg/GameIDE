@@ -1,27 +1,31 @@
-// Copyright (c) 2017 by Trevor Sundberg
+// Copyright (c) 2017 Trevor Sundberg
 // This code is licensed under the MIT license (see LICENSE.txt for details)
+
+#pragma once
+
+#include "Asserts.h"
 
 namespace Skugo
 {
   /***********************************************************************************************/
-  template <typename T>
-  T* Singleton<T>::mInstance = nullptr;
+  template <typename SelfType, typename BaseType>
+  SelfType* Singleton<SelfType, BaseType>::mInstance = nullptr;
 
   /***********************************************************************************************/
-  template <typename T>
+  template <typename SelfType, typename BaseType>
   template <typename... Args>
-  void Singleton<T>::Initialize(Args&&... args)
+  void Singleton<SelfType, BaseType>::Initialize(Args&&... args)
   {
     SkugoReturnVoidIf(
       mInstance != nullptr,
       "Attempting to initialize the Singleton twice");
 
-    mInstance = new T(args);
+    mInstance = new SelfType(std::forward<Args>(args)...);
   }
 
   /***********************************************************************************************/
-  template <typename T>
-  void Singleton<T>::Uninitialize()
+  template <typename SelfType, typename BaseType>
+  void Singleton<SelfType, BaseType>::Uninitialize()
   {
     SkugoErrorIf(
       mInstance == nullptr,
@@ -32,13 +36,13 @@ namespace Skugo
   }
 
   /***********************************************************************************************/
-  template <typename T>
-  T* Singleton<T>::Instance()
+  template <typename SelfType, typename BaseType>
+  SelfType& Singleton<SelfType, BaseType>::Instance()
   {
     SkugoErrorIf(
       mInstance == nullptr,
       "The Singleton should be initialized before grabbing an instance");
 
-    return mInstance;
+    return *mInstance;
   }
 }

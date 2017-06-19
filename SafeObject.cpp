@@ -1,4 +1,4 @@
-// Copyright (c) 2017 by Trevor Sundberg
+// Copyright (c) 2017 Trevor Sundberg
 // This code is licensed under the MIT license (see LICENSE.txt for details)
 
 #include "Precompiled.h"
@@ -17,15 +17,15 @@ namespace Skugo
   /***********************************************************************************************/
   SafeObject::SafeObject()
   {
-    SafeObjectSingleton* singleton = SafeObjectSingleton::Instance();
-    mId = singleton->mIdCounter;
-    ++singleton->mIdCounter;
-    singleton->mIdToSafeObject[mId] = this;
+    SafeObjectSingleton& singleton = SafeObjectSingleton::Instance();
+    mId = singleton.mIdCounter;
+    ++singleton.mIdCounter;
+    singleton.mIdToSafeObject[mId] = this;
 
-    if (singleton->mIsNextObjectReferenceCounted)
+    if (singleton.mIsNextObjectReferenceCounted)
     {
       mReferenceCount = 0;
-      singleton->mIsNextObjectReferenceCounted = false;
+      singleton.mIsNextObjectReferenceCounted = false;
     }
     else
     {
@@ -36,8 +36,8 @@ namespace Skugo
   /***********************************************************************************************/
   SafeObject::~SafeObject()
   {
-    SafeObjectSingleton* singleton = SafeObjectSingleton::Instance();
-    size_t itemsRemoved = singleton->mIdToSafeObject.erase(mId);
+    SafeObjectSingleton& singleton = SafeObjectSingleton::Instance();
+    size_t itemsRemoved = singleton.mIdToSafeObject.erase(mId);
     SkugoErrorIf(itemsRemoved == 0, "The SafeObject did not exist within the SafeObjectSingleton");
   }
 
@@ -91,9 +91,9 @@ namespace Skugo
   /***********************************************************************************************/
   SafeObject* Handle::Dereference()
   {
-    SafeObjectSingleton * singleton = SafeObjectSingleton::Instance();
-    auto it = singleton->mIdToSafeObject.find(mId);
-    if (it != singleton->mIdToSafeObject.end())
+    SafeObjectSingleton& singleton = SafeObjectSingleton::Instance();
+    auto it = singleton.mIdToSafeObject.find(mId);
+    if (it != singleton.mIdToSafeObject.end())
     {
       return it->second;
     }

@@ -1,4 +1,4 @@
-// Copyright (c) 2017 by Trevor Sundberg
+// Copyright (c) 2017 Trevor Sundberg
 // This code is licensed under the MIT license (see LICENSE.txt for details)
 
 #pragma once
@@ -40,7 +40,7 @@ namespace Skugo
   };
 
   // Allocates a SafeObject that is also reference counted
-  #define SkugoNew(T, ...) (::Skugo::SafeObjectSingleton::Instance()->NewReferenceCountedSafeObject<T>(__VA_ARGS__))
+  #define SkugoNew(T, ...) (::Skugo::SafeObjectSingleton::Instance().NewReferenceCountedSafeObject<T>(__VA_ARGS__))
 
   // All of our classes should inherit from safe object in order to be refernece counted and looked up via handles
   class SafeObject
