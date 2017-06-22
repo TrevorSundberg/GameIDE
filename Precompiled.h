@@ -6,6 +6,8 @@
 #include <cstdint>
 #include <unordered_map>
 #include <utility>
+#include <string>
+#include <memory>
 
 namespace Skugo
 {

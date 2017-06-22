@@ -1,5 +1,13 @@
 // Copyright (c) 2017 Trevor Sundberg
 // This code is licensed under the MIT license (see LICENSE.txt for details)
 
-#include "Precompiled.h"
-#include "String.h"
+#pragma once
+
+namespace Skugo
+{
+  class String
+  {
+  public:
+    shared_ptr<const string> mStringNode;
+  };
+}

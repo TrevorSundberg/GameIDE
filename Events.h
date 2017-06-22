@@ -7,6 +7,21 @@
 
 namespace Skugo
 {
+  class Event
+  {
+  public:
+    String mName;
+  };
+
+  // An event connection is allocated and exists between the sender and the reciever.
+  // When either sender or receiver dies, we attempt to delete the EventConnection.
+  // The virtual Invoke allows us to use many types of callbacks (including script).
+  class EventConnection
+  {
+  public:
+    virtual void Invoke(Event* event);
+  };
+
   class EventObject : public SafeObject
   {
   public:
