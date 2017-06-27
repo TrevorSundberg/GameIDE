@@ -7,7 +7,5 @@
 namespace Skugo
 {
   /***********************************************************************************************/
-  void LoggingSingleton::SignalEvent(const char messageN[], const char* tagsSpaceSeparatedN)
-  {
-  }
+  
 }

@@ -121,7 +121,7 @@
     <ClInclude Include="Asserts.h" />
     <ClInclude Include="Events.h" />
     <ClInclude Include="ForwardDeclarations.h" />
-    <ClInclude Include="IntrusiveList.h" />
+    <ClInclude Include="intrusive_list.h" />
     <ClInclude Include="Logging.h" />
     <ClInclude Include="Precompiled.h" />
     <ClInclude Include="SafeObject.h" />
@@ -133,7 +133,6 @@
   <ItemGroup>
     <ClCompile Include="Asserts.cpp" />
     <ClCompile Include="Events.cpp" />
-    <ClCompile Include="IntrusiveList.cpp" />
     <ClCompile Include="Logging.cpp" />
     <ClCompile Include="Precompiled.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -147,7 +146,6 @@
     <ClCompile Include="UnitTests.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="IntrusiveList.inl" />
     <None Include="SafeObject.inl" />
     <None Include="Singleton.inl" />
   </ItemGroup>

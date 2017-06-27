@@ -4,6 +4,7 @@
 #pragma once
 
 #include "SafeObject.h"
+#include "String.h"
 
 namespace Skugo
 {
@@ -20,10 +21,13 @@ namespace Skugo
   {
   public:
     virtual void Invoke(Event* event);
+    
+    // TODO (Trevor): Make this intrusive!
   };
 
   class EventObject : public SafeObject
   {
   public:
   };
+
 }
