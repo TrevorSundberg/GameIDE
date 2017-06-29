@@ -186,6 +186,8 @@ namespace std
     bool empty() const;
 
   private:
+    iterator insert_after_helper(const intrusive_link* afterThisLink, const T& toBeInserted);
+    iterator insert_before_helper(const intrusive_link* beforeThisLink, const T& toBeInserted);
     iterator insert_after_helper(const intrusive_link* afterThisLink, const_iterator begin, const_iterator end);
     iterator insert_before_helper(const intrusive_link* beforeThisLink, const_iterator begin, const_iterator end);
     static T& to_t(const intrusive_link* link);
@@ -610,7 +612,7 @@ namespace std
     // We guarantee that pushing an item that is within our own list is valid, so we must unlink it first
     // This is only a problem in the case that the item is at the front (or the back for push_back)
     to_link(value)->unlink();
-    insert_after_helper(&mSentinel, value, value);
+    insert_after_helper(&mSentinel, value);
     return value;
   }
 
@@ -619,7 +621,7 @@ namespace std
   const T& intrusive_list<T, LinkType>::push_back(const T& value)
   {
     to_link(value)->unlink();
-    insert_before_helper(&mSentinel, value, value);
+    insert_before_helper(&mSentinel, value);
     return value;
   }
 
@@ -628,7 +630,7 @@ namespace std
   T& intrusive_list<T, LinkType>::push_front(T& value)
   {
     to_link(value)->unlink();
-    insert_after_helper(&mSentinel, value, value);
+    insert_after_helper(&mSentinel, value);
     return value;
   }
 
@@ -637,7 +639,7 @@ namespace std
   T& intrusive_list<T, LinkType>::push_back(T& value)
   {
     to_link(value)->unlink();
-    insert_before_helper(&mSentinel, value, value);
+    insert_before_helper(&mSentinel, value);
     return value;
   }
 
@@ -697,7 +699,7 @@ namespace std
   template <typename T, typename LinkType>
   typename intrusive_list<T, LinkType>::iterator intrusive_list<T, LinkType>::insert_before(const_iterator beforeThis, const T& toBeInserted)
   {
-    return insert_before_helper(beforeThis.mLink, toBeInserted, toBeInserted);
+    return insert_before_helper(beforeThis.mLink, toBeInserted);
   }
 
   /***********************************************************************************************/
@@ -734,7 +736,7 @@ namespace std
   {
     for (const T* value : list)
     {
-      insert_before_helper(beforeThis, *value, *value);
+      insert_before_helper(beforeThis, *value);
     }
   }
 
@@ -752,13 +754,16 @@ namespace std
   template <typename T, typename LinkType>
   typename intrusive_list<T, LinkType>::iterator intrusive_list<T, LinkType>::erase(const_iterator begin, const_iterator end)
   {
-    iterator next = end.mLink->mNext;
     while (begin != end)
     {
-      erase(begin);
+      // If we don't move our iterator forward first then we'll
+      // lose the mNext link when we erase the iterator.
+      iterator toBeErased(begin.mLink);
       ++begin;
+
+      erase(toBeErased);
     }
-    return next;
+    return iterator(end.mLink);
   }
 
   /***********************************************************************************************/
@@ -836,6 +841,33 @@ namespace std
 
   /***********************************************************************************************/
   template <typename T, typename LinkType>
+  typename intrusive_list<T, LinkType>::iterator intrusive_list<T, LinkType>::insert_after_helper(const intrusive_link* afterThisLink, const T& toBeInserted)
+  {
+    return insert_before_helper(afterThisLink->mNext, toBeInserted);
+  }
+
+  /***********************************************************************************************/
+  template <typename T, typename LinkType>
+  typename intrusive_list<T, LinkType>::iterator intrusive_list<T, LinkType>::insert_before_helper(const intrusive_link* beforeThisLink, const T& toBeInserted)
+  {
+    __stl_assert(beforeThisLink != nullptr && beforeThisLink->is_linked(), "We cannot insert into a link that isn't linked to anything (null iterator?)");
+
+    const intrusive_link* toBeInsertedLink = to_link(toBeInserted);
+    __stl_assert(!toBeInsertedLink->is_linked(), "When inserting a single value it must already be unlinked (prevents bugs with push_back/front)");
+
+    const intrusive_link* afterThisLink = beforeThisLink->mPrevious;
+
+    // Place the item we're splicing in between (haven't updated our own links yet)
+    afterThisLink->mNext = toBeInsertedLink;
+    beforeThisLink->mPrevious = toBeInsertedLink;
+
+    toBeInsertedLink->mPrevious = afterThisLink;
+    toBeInsertedLink->mNext = beforeThisLink;
+    return iterator(toBeInsertedLink);
+  }
+
+  /***********************************************************************************************/
+  template <typename T, typename LinkType>
   typename intrusive_list<T, LinkType>::iterator intrusive_list<T, LinkType>::insert_after_helper(const intrusive_link* afterThisLink, const_iterator begin, const_iterator end)
   {
     return insert_before_helper(afterThisLink->mNext, begin, end);
@@ -845,39 +877,39 @@ namespace std
   template <typename T, typename LinkType>
   typename intrusive_list<T, LinkType>::iterator intrusive_list<T, LinkType>::insert_before_helper(const intrusive_link* beforeThisLink, const_iterator begin, const_iterator end)
   {
-    // If what we're inserting is not in a list
-
     __stl_assert(beforeThisLink != nullptr && beforeThisLink->is_linked(), "We cannot insert into a link that isn't linked to anything (null iterator?)");
+
+    // If the list were trying to splice in is empty, then do nothing (we actually need this case)
+    if (begin == end)
+    {
+      return iterator(beforeThisLink);
+    }
+
     const intrusive_link* afterThisLink = beforeThisLink->mPrevious;
 
-    __stl_assert(begin.mLink->is_linked() == end.mLink->is_linked(),
-      "Either the beginning and end should both be linked, or they should be the same value and unlinked");
+    __stl_assert(begin.mLink->is_linked(),
+      "The beginning iterator should be linked into a list");
+    __stl_assert(end.mLink->is_linked(),
+      "The ending iterator should be linked into a list");
+
+    // For simplicity, instead of pointing at the end (one past) we point at the last element
+    const_iterator last = end;
+    --last;
 
     // Place the list we're splicing in between (haven't updated our own links yet)
-    // Since 'end' is one past the link we actualy want to link it, we need to grab mPrevious
     afterThisLink->mNext = begin.mLink;
-    beforeThisLink->mPrevious = end.mLink->mPrevious;
+    beforeThisLink->mPrevious = last.mLink;
 
-    // Are the value's we're inserting currently linked into a list?
-    // Note that it is UNDEFINED if they are within our list
-    if (begin.mLink->mPrevious != nullptr)
-    {
-      // We need to unlink it from whatever list it is within
-      // Remember that 'end' is already one past, so we don't need to grab it's mNext
-      const intrusive_link* previousLink = begin.mLink->mPrevious;
-      const intrusive_link* nextLink = end.mLink;
-      previousLink->mNext = nextLink;
-      nextLink->mPrevious = previousLink;
-    }
-    else
-    {
-      // Make sure we're inserting a single object
-      __stl_assert(begin == end, "You cannot insert a range when the beginning and end are not linked");
-    }
+    // We need to unlink the sub-list from whatever list it is within
+    // Remember that 'end' is already one past, so we don't need to grab it's mNext
+    const intrusive_link* previousLink = begin.mLink->mPrevious;
+    const intrusive_link* nextLink = last.mLink->mNext;
+    previousLink->mNext = nextLink;
+    nextLink->mPrevious = previousLink;
 
     // Now update the list we're splicing in
     begin.mLink->mPrevious = afterThisLink;
-    end.mLink->mNext = beforeThisLink;
+    last.mLink->mNext = beforeThisLink;
     return iterator(begin.mLink);
   }
 

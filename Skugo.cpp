@@ -50,6 +50,8 @@ int main(void)
   farm.push_back(ned);
   farm.push_front(ned);
 
+  farm.erase(bob, ted);
+
   size_t s1 = farm.size();
 
   intrusive_list<Animal> stateFarm;
