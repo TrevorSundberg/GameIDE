@@ -10,8 +10,9 @@
     <ClInclude Include="UnitTests.h" />
     <ClInclude Include="Asserts.h" />
     <ClInclude Include="Events.h" />
-    <ClInclude Include="String.h" />
-    <ClInclude Include="intrusive_list.h" />
+    <ClInclude Include="std_intrusive_list.h" />
+    <ClInclude Include="std_pstring.h" />
+    <ClInclude Include="std_pool.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Skugo.cpp" />
@@ -21,7 +22,6 @@
     <ClCompile Include="UnitTests.cpp" />
     <ClCompile Include="Asserts.cpp" />
     <ClCompile Include="Events.cpp" />
-    <ClCompile Include="String.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Singleton.inl" />

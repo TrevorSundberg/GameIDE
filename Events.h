@@ -4,14 +4,14 @@
 #pragma once
 
 #include "SafeObject.h"
-#include "String.h"
+#include "std_pstring.h"
 
 namespace Skugo
 {
   class Event
   {
   public:
-    String mName;
+    pstring mName;
   };
 
   // An event connection is allocated and exists between the sender and the reciever.

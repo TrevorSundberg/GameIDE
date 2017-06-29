@@ -123,11 +123,8 @@ namespace std
     typedef std::reverse_iterator<const_iterator> const_reverse_iterator; //optional
 
     intrusive_list();
+    intrusive_list(intrusive_list&&);
     ~intrusive_list();
-
-    // Intrusive lists cannot be copied or assigned to because they own the members inside of them
-    intrusive_list(const intrusive_list&) = delete;
-    intrusive_list& operator=(const intrusive_list&) = delete;
 
     iterator begin();
     const_iterator begin() const;
@@ -192,6 +189,10 @@ namespace std
     iterator insert_before_helper(const intrusive_link* beforeThisLink, const_iterator begin, const_iterator end);
     static T& to_t(const intrusive_link* link);
     static const intrusive_link* to_link(const T& value);
+
+    // Intrusive lists cannot be copied or assigned to because they own the members inside of them
+    intrusive_list(const intrusive_list&) = delete;
+    intrusive_list& operator=(const intrusive_list&) = delete;
 
     // Our head and tail are the mNext and mPrevious of the sentinel node
     intrusive_link mSentinel;
@@ -484,6 +485,16 @@ namespace std
 
   /***********************************************************************************************/
   template <typename T, typename LinkType>
+  intrusive_list<T, LinkType>::intrusive_list(intrusive_list&& rhs) :
+    intrusive_list()
+  {
+    // Since we called the default constructor our mSentinel is now setup
+    // Use our insertion helpers to directly steal the rhs list
+    insert_after_helper(&mSentinel, rhs.begin(), rhs.end());
+  }
+
+  /***********************************************************************************************/
+  template <typename T, typename LinkType>
   intrusive_list<T, LinkType>::~intrusive_list()
   {
     clear();
@@ -690,7 +701,7 @@ namespace std
   {
     while (begin != end)
     {
-      insert_before(beforeThis, *begin);
+      insert_before_helper(beforeThis.mLink, *begin);
       ++begin;
     }
   }
@@ -736,7 +747,64 @@ namespace std
   {
     for (const T* value : list)
     {
-      insert_before_helper(beforeThis, *value);
+      insert_before_helper(beforeThis.mLink, *value);
+    }
+  }
+
+  /***********************************************************************************************/
+  template <typename T, typename LinkType>
+  template <typename IteratorType>
+  typename intrusive_list<T, LinkType>::iterator intrusive_list<T, LinkType>::insert_after(const_iterator afterThis, IteratorType begin, IteratorType end)
+  {
+    while (begin != end)
+    {
+      insert_after_helper(afterThis.mLink, *begin);
+      ++begin;
+    }
+  }
+
+  /***********************************************************************************************/
+  template <typename T, typename LinkType>
+  typename intrusive_list<T, LinkType>::iterator intrusive_list<T, LinkType>::insert_after(const_iterator afterThis, const T& toBeInserted)
+  {
+    return insert_after_helper(afterThis.mLink, toBeInserted);
+  }
+
+  /***********************************************************************************************/
+  template <typename T, typename LinkType>
+  typename intrusive_list<T, LinkType>::iterator intrusive_list<T, LinkType>::insert_after(const_iterator afterThis, const_iterator begin, const_iterator end)
+  {
+    return insert_after_helper(afterThis.mLink, begin, end);
+  }
+
+  /***********************************************************************************************/
+  template <typename T, typename LinkType>
+  typename intrusive_list<T, LinkType>::iterator intrusive_list<T, LinkType>::insert_after(const_iterator afterThis, const_iterator begin, iterator end)
+  {
+    return insert_after_helper(afterThis.mLink, begin, end);
+  }
+
+  /***********************************************************************************************/
+  template <typename T, typename LinkType>
+  typename intrusive_list<T, LinkType>::iterator intrusive_list<T, LinkType>::insert_after(const_iterator afterThis, iterator begin, const_iterator end)
+  {
+    return insert_after_helper(afterThis.mLink, begin, end);
+  }
+
+  /***********************************************************************************************/
+  template <typename T, typename LinkType>
+  typename intrusive_list<T, LinkType>::iterator intrusive_list<T, LinkType>::insert_after(const_iterator afterThis, iterator begin, iterator end)
+  {
+    return insert_after_helper(afterThis.mLink, begin, end);
+  }
+
+  /***********************************************************************************************/
+  template <typename T, typename LinkType>
+  typename intrusive_list<T, LinkType>::iterator intrusive_list<T, LinkType>::insert_after(const_iterator afterThis, std::initializer_list<T> list)
+  {
+    for (const T* value : list)
+    {
+      insert_after_helper(afterThis.mLink, *value);
     }
   }
 
